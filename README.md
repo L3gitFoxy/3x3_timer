@@ -25,7 +25,6 @@ Simple. Fast. Offline.
 - [Project Structure](#project-structure)
 - [Data Storage](#data-storage)
 - [Requirements](#requirements)
-- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 
