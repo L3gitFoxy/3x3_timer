@@ -1,6 +1,6 @@
 <div align="center">
 
-# 3x3 Timer
+![banner](github-header-banner.png)
 
 A lightweight desktop timer for 3×3 Rubik's Cube solves, built with Python.
 
