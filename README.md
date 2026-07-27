@@ -20,9 +20,7 @@ Simple. Fast. Offline.
 
 - [Overview](#overview)
 - [Features](#features)
-- [Changelog](#changelog)
-- [Installation](#installation)
-- [Running](#running)
+- [Installation](#installation-and-running)
 - [Project Structure](#project-structure)
 - [Data Storage](#data-storage)
 - [Requirements](#requirements)
