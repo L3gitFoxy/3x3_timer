@@ -2,9 +2,9 @@
 
 ![banner](github-header-banner.png)
 
-A lightweight desktop timer for 3×3 Rubik's Cube solves, built with Python.
+A modern desktop timer for 3×3 Rubik's Cube solves, built with Python & CustomTkinter.
 
-[![Version](https://img.shields.io/badge/Version-2.0-00ff00?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer)
+[![Version](https://img.shields.io/badge/Version-2.3-00ff00?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://microsoft.com/windows)
 [![Stars](https://img.shields.io/github/stars/L3gitFoxy/3x3_timer?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer/stargazers)
@@ -20,6 +20,7 @@ Simple. Fast. Offline.
 
 - [Overview](#overview)
 - [Features](#features)
+- [Changelog](#changelog)
 - [Installation](#installation)
 - [Running](#running)
 - [Project Structure](#project-structure)
@@ -33,7 +34,7 @@ Simple. Fast. Offline.
 
 ## Overview
 
-**3x3 Timer** is a minimal desktop timer designed for recording Rubik's Cube solves without unnecessary complexity.
+**3x3 Timer** is a modern desktop timer for recording Rubik's Cube solves with a sleek CustomTkinter dark-theme UI.
 
 Solve history is stored locally, making the application completely offline with no external services or accounts required.
 
@@ -41,16 +42,38 @@ Solve history is stored locally, making the application completely offline with 
 
 ## Features
 
-- High-precision solve timer with inspection & grace period
-- WCA-style scramble generator (20 random moves)
-- Isometric 3D cube visualizer (step through scrambles with arrow keys)
-- Local solve history with scramble tracking
-- Persistent JSON storage
-- Lightweight multi-file modular application
+- **Modern UI** — CustomTkinter dark theme with rounded widgets, hover effects, and dynamic font scaling
+- **High-precision solve timer** with inspection (15s) & grace period (3s)
+- **WCA-compliant scramble generator** (20 random moves, no parallel-face sequences per WCA 4b3)
+- **Inline scramble display** — scramble always visible, no reveal/hide pattern
+- **Isometric 3D cube visualizer** — step through scrambles with arrow keys
+- **Solve time graph** — line chart with best/worst/average markers in the times window
+- **Local solve history** with scramble tracking and persistent JSON storage
+- **Ao5 / Ao12 / Ao100** — sliding-window averages calculated automatically
+- **CSV export** — export all solve times to CSV for external analysis
+- **Responsive layout** — window resizes proportionally, timer font scales
+- **Cross-platform** (Windows, macOS, Linux)
 - No internet connection required
 - No external database
-- Easy to modify and extend
-- Cross-platform (Windows, macOS, Linux)
+- Lightweight multi-file modular application
+
+---
+
+## Changelog
+
+### v2.3 (Current)
+- **CSV export** — Export all solves to CSV with native save dialog
+- Statistics now include Ao5, Ao12, Ao100 sliding averages
+
+### v2.2
+- **WCA-compliant scramble generation** — parallel-face sequences (U/D, R/L, F/B) are now prevented per WCA regulation 4b3
+- **Sliding averages** — Ao5, Ao12, Ao100 displayed in the stats panel
+
+### v2.1
+- **CustomTkinter migration** — modern rounded dark-theme widgets
+- **Inline scramble** — always visible, no reveal/hide logic
+- **Times graph** — canvas-based line chart in the View Times window
+- **Responsive layout** — proportional scaling on resize
 
 ---
 
@@ -86,10 +109,10 @@ python run.py
 │
 ├── src/
 │   ├── __init__.py          # Package marker
-│   ├── scramble.py          # Cube simulation & scramble generation
+│   ├── scramble.py          # Cube simulation & WCA scramble generation
 │   ├── timer.py             # Pure timer logic & state machine
 │   ├── storage.py           # JSON persistence & validation
-│   ├── ui.py                # Tkinter graphical interface
+│   ├── ui.py                # CustomTkinter graphical interface
 │   └── visualizer.py        # Isometric 3D cube visualizer
 ├── data/
 │   └── times.json           # Solve history (gitignored)
@@ -113,7 +136,7 @@ No cloud services, analytics, or user accounts are used.
 ## Requirements
 
 - Python 3.10 or newer
-- Tkinter (included with most Python installations)
+- CustomTkinter >= 5.2.2 (installed automatically via pip)
 
 ---
 

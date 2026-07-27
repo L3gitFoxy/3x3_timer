@@ -17,17 +17,23 @@ Thanks for your interest in contributing!
 
 ## Project Structure
 
-- `src/scramble.py` — Cube simulation & WCA scramble generation.
+- `src/scramble.py` — Cube simulation & WCA scramble generation (parallel-face prevention per WCA 4b3).
 - `src/timer.py` — Pure timer logic & state machine (no UI imports).
-- `src/storage.py` — JSON load/save.
-- `src/ui.py` — Tkinter interface.
-- `src/visualizer.py` — Isometric 3D cube visualizer.
+- `src/storage.py` — JSON load/save with validation.
+- `src/ui.py` — CustomTkinter graphical interface (inline scramble, times graph, CSV export, responsive layout).
+- `src/visualizer.py` — Isometric 3D cube visualizer with arrow key navigation.
 - `data/times.json` — User solve data (gitignored).
 
 ## Running Locally
 
 ```bash
-python -m src.ui
+python run.py
+```
+
+## Installing Dependencies
+
+```bash
+pip install customtkinter>=5.2.2
 ```
 
 ## Reporting Issues
