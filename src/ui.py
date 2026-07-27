@@ -232,6 +232,14 @@ class Application:
 
     # ── Statistics ──────────────────────────────────────────────────
 
+    @staticmethod
+    def _sliding_avg(times_ms: List[int], window: int) -> Optional[int]:
+        """Return the most recent sliding-window average, or None if not enough solves."""
+        if len(times_ms) < window:
+            return None
+        recent = times_ms[-window:]
+        return int(sum(recent) / window)
+
     def _stats(self) -> Dict[str, Any]:
         times_ms = [e["time"] for e in self.times]
         if not times_ms:
@@ -241,6 +249,9 @@ class Application:
             "best": min(times_ms),
             "worst": max(times_ms),
             "average": sum(times_ms) / len(times_ms),
+            "ao5": self._sliding_avg(times_ms, 5),
+            "ao12": self._sliding_avg(times_ms, 12),
+            "ao100": self._sliding_avg(times_ms, 100),
         }
 
     # ── Times graph (canvas-based) ──────────────────────────────────
@@ -416,10 +427,21 @@ class Application:
                 font=ctk.CTkFont(size=13), text_color="#ffff00",
             ).grid(row=3, column=0, sticky="w", pady=1)
 
+            # ── Sliding averages ──
+            row_offset = 4
+            for label, key in [("Ao5", "ao5"), ("Ao12", "ao12"), ("Ao100", "ao100")]:
+                val = s.get(key)
+                if val is not None:
+                    ctk.CTkLabel(
+                        stats_frame, text=f"{label}: {format_time(val)}",
+                        font=ctk.CTkFont(size=13), text_color="#00cfff",
+                    ).grid(row=row_offset, column=0, sticky="w", pady=1)
+                    row_offset += 1
+
         ctk.CTkLabel(
             stats_frame, text="─" * 50,
             font=ctk.CTkFont(size=11), text_color="#555555",
-        ).grid(row=4, column=0, sticky="w", pady=4)
+        ).grid(row=10, column=0, sticky="w", pady=4)
 
         # ── Solve entries ──
         ctk.CTkLabel(

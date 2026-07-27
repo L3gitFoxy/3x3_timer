@@ -115,17 +115,26 @@ def compute_states(scramble: str) -> List[CubeState]:
     return states
 
 
+# ── Opposing face pairs (WCA regulation 4b3) ─────────────────────────
+
+OPPOSITES: Dict[str, str] = {"U": "D", "D": "U", "R": "L", "L": "R", "F": "B", "B": "F"}
+
 # ── Scramble generation ──────────────────────────────────────────────
 
 def generate_scramble(length: int = 20) -> str:
     """Generate a random WCA-style scramble of *length* moves.
 
-    No move appears twice consecutively on the same face.
+    - No move appears twice consecutively on the same face.
+    - No move on the *opposite* face after a move on its parallel face
+      (WCA regulation 4b3 — e.g. R is never followed by L, U never by D).
     """
     scramble: List[str] = []
     last: str | None = None
     for _ in range(length):
-        available = [m for m in MOVES if m != last]
+        available = [
+            m for m in MOVES
+            if m != last and (last is None or m != OPPOSITES[last])
+        ]
         move = random.choice(available)
         mod = random.choice(MODIFIERS)
         scramble.append(move + mod)
