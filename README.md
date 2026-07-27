@@ -51,19 +51,27 @@ Solve history is stored locally, making the application completely offline with 
 
 ---
 
-## Installation
+## Installation & Running
+
+### One-command install (requires Python 3.10+)
+
+```bash
+pip install git+https://github.com/L3gitFoxy/3x3_timer.git && 3x3_timer
+```
+
+Or install, then run whenever:
+
+```bash
+pip install git+https://github.com/L3gitFoxy/3x3_timer.git
+3x3_timer
+```
+
+### Run directly without installing
 
 ```bash
 git clone https://github.com/L3gitFoxy/3x3_timer.git
 cd 3x3_timer
-```
-
----
-
-## Running
-
-```bash
-python -m src.ui
+python run.py
 ```
 
 ---

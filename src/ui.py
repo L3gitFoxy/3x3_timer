@@ -7,8 +7,8 @@ from tkinter import messagebox
 from datetime import datetime
 from typing import List, Dict, Any
 
-from src.timer import SpeedCubeTimer, TimerPhase, format_time
-from src.storage import load_times, save_times
+from timer import SpeedCubeTimer, TimerPhase, format_time
+from storage import load_times, save_times
 
 # ── Colour palette ──────────────────────────────────────────────────
 BG = "#1a1a1a"
