@@ -20,7 +20,7 @@ Simple. Fast. Offline.
 
 - [Overview](#overview)
 - [Features](#features)
-- [Installation](#installation-and-running)
+- [Installation](#installation)
 - [Project Structure](#project-structure)
 - [Data Storage](#data-storage)
 - [Requirements](#requirements)
@@ -57,7 +57,7 @@ Solve history is stored locally, making the application completely offline with 
 
 ---
 
-## Installation & Running
+## Installation
 
 ### One-command install (requires Python 3.10+)
 
