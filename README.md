@@ -4,6 +4,7 @@
 
 A lightweight desktop timer for 3×3 Rubik's Cube solves, built with Python.
 
+[![Version](https://img.shields.io/badge/Version-2.0-00ff00?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://microsoft.com/windows)
 [![Stars](https://img.shields.io/github/stars/L3gitFoxy/3x3_timer?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer/stargazers)
@@ -40,10 +41,12 @@ Solve history is stored locally, making the application completely offline with 
 
 ## Features
 
-- High-precision solve timer
-- Local solve history
+- High-precision solve timer with inspection & grace period
+- WCA-style scramble generator (20 random moves)
+- Isometric 3D cube visualizer (step through scrambles with arrow keys)
+- Local solve history with scramble tracking
 - Persistent JSON storage
-- Lightweight multi-file application
+- Lightweight multi-file modular application
 - No internet connection required
 - No external database
 - Easy to modify and extend
@@ -83,9 +86,11 @@ python run.py
 │
 ├── src/
 │   ├── __init__.py          # Package marker
+│   ├── scramble.py          # Cube simulation & scramble generation
 │   ├── timer.py             # Pure timer logic & state machine
 │   ├── storage.py           # JSON persistence & validation
-│   └── ui.py                # Tkinter graphical interface
+│   ├── ui.py                # Tkinter graphical interface
+│   └── visualizer.py        # Isometric 3D cube visualizer
 ├── data/
 │   └── times.json           # Solve history (gitignored)
 ├── .gitignore

@@ -17,9 +17,11 @@ Thanks for your interest in contributing!
 
 ## Project Structure
 
-- `src/timer.py` — Pure timer logic (no UI imports).
+- `src/scramble.py` — Cube simulation & WCA scramble generation.
+- `src/timer.py` — Pure timer logic & state machine (no UI imports).
 - `src/storage.py` — JSON load/save.
 - `src/ui.py` — Tkinter interface.
+- `src/visualizer.py` — Isometric 3D cube visualizer.
 - `data/times.json` — User solve data (gitignored).
 
 ## Running Locally
