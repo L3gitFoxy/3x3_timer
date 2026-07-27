@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import csv
 import tkinter as tk  # for Canvas (no CTkCanvas in customtkinter 5.x)
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import customtkinter as ctk
@@ -373,11 +375,21 @@ class Application:
         self._times_window.grid_rowconfigure(2, weight=1)
         self._times_window.grid_columnconfigure(0, weight=1)
 
-        # Title
+        # Title row with export button
+        title_frame = ctk.CTkFrame(self._times_window, fg_color="transparent")
+        title_frame.grid(row=0, column=0, pady=(12, 2))
+        title_frame.grid_columnconfigure(0, weight=1)
+
         ctk.CTkLabel(
-            self._times_window, text="Your Solve Times",
+            title_frame, text="Your Solve Times",
             font=ctk.CTkFont(size=20, weight="bold"),
-        ).grid(row=0, column=0, pady=(12, 2))
+        ).grid(row=0, column=0, padx=(0, 20))
+
+        ctk.CTkButton(
+            title_frame, text="Export CSV",
+            command=self._export_csv,
+            width=100, height=28, fg_color="#2b5b84", hover_color="#1a3f5c",
+        ).grid(row=0, column=1)
 
         # ── Graph ──
         graph_frame = ctk.CTkFrame(self._times_window, fg_color="#0a0a0a", height=180)
@@ -480,6 +492,47 @@ class Application:
                 width=30, height=24, fg_color="#cc0000", hover_color="#990000",
                 font=ctk.CTkFont(size=12),
             ).grid(row=0, column=1, rowspan=2, padx=6, sticky="e")
+
+    # ── CSV Export ──────────────────────────────────────────────────
+
+    def _export_csv(self) -> None:
+        """Export all solve times to a CSV file."""
+        if not self.times:
+            import tkinter.messagebox as mb
+            mb.showinfo("Export", "No times to export!", parent=self._times_window)
+            return
+
+        from tkinter import filedialog
+        filename = filedialog.asksaveasfilename(
+            parent=self._times_window,
+            title="Export Times as CSV",
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+        )
+        if not filename:
+            return
+
+        try:
+            with open(filename, "w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(["#", "Time (ms)", "Time (formatted)", "Date", "Scramble"])
+                for idx, entry in enumerate(self.times):
+                    writer.writerow([
+                        idx + 1,
+                        entry["time"],
+                        format_time(entry["time"]),
+                        entry["date"],
+                        entry.get("scramble", ""),
+                    ])
+            import tkinter.messagebox as mb
+            mb.showinfo(
+                "Export Successful",
+                f"Exported {len(self.times)} solves to:\n{filename}",
+                parent=self._times_window,
+            )
+        except (OSError, PermissionError) as e:
+            import tkinter.messagebox as mb
+            mb.showerror("Export Failed", str(e), parent=self._times_window)
 
     # ── Delete & Clear ──────────────────────────────────────────────
 
