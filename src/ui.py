@@ -1,4 +1,4 @@
-"""Tkinter-based graphical interface for the 3×3 speed cube timer."""
+"""Tkinter-based graphical interface for the 3x3 speed cube timer."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from typing import List, Dict, Any
 
 from timer import SpeedCubeTimer, TimerPhase, format_time
 from storage import load_times, save_times
+from scramble import generate_scramble
+from visualizer import open_visualizer
 
 # ── Colour palette ──────────────────────────────────────────────────
 BG = "#1a1a1a"
@@ -26,7 +28,8 @@ BUTTON_RED = "#ff0000"
 
 # ── Status text keyed to timer phase ────────────────────────────────
 STATUS_TEXTS = {
-    "idle": "Press ANY KEY to start looking time",
+    "idle": "Press ANY KEY to reveal scramble",
+    "scramble_revealed": "Press ANY KEY again to start inspection",
     "inspection": "LOOKING TIME:",
     "grace": "READY TO SOLVE:",
     "ready": "PRESS ANY KEY TO START SOLVING",
@@ -45,6 +48,9 @@ class Application:
 
         self.timer = SpeedCubeTimer()
         self.times: List[Dict[str, Any]] = load_times()
+        self.current_scramble: str = generate_scramble()
+        self._scramble_revealed: bool = False
+        self._times_window: tk.Toplevel | None = None
 
         self._build_ui()
         self._bind_keys()
@@ -61,6 +67,30 @@ class Application:
             main, text="3x3 Speed Cube Timer",
             font=("Arial", 24, "bold"), bg=BG, fg=FG_GREEN,
         ).pack(pady=10)
+
+        # Scramble row
+        self._scramble_frame = tk.Frame(main, bg=BG)
+        self._scramble_frame.pack(pady=(0, 5))
+
+        self._scramble_label = tk.Label(
+            self._scramble_frame, text="",
+            font=("Courier", 13, "bold"), bg=BG, fg="#00cfff",
+            wraplength=1200, justify=tk.CENTER,
+        )
+
+        self._new_scramble_btn = tk.Button(
+            self._scramble_frame, text="New Scramble",
+            command=self._new_scramble,
+            font=("Arial", 10), bg="#333333", fg="#00cfff",
+            padx=6, pady=3, cursor="hand2", relief="flat",
+        )
+
+        self._visualize_btn = tk.Button(
+            self._scramble_frame, text="Visualize Scramble",
+            command=lambda: open_visualizer(self.root, self.current_scramble),
+            font=("Arial", 10), bg="#333333", fg="#ff9900",
+            padx=6, pady=3, cursor="hand2", relief="flat",
+        )
 
         # Timer display
         self._timer_label = tk.Label(
@@ -112,12 +142,32 @@ class Application:
         phase = self.timer.phase
 
         if phase == TimerPhase.IDLE:
-            self.timer.start_inspection()
+            if not self._scramble_revealed:
+                # Reveal scramble
+                self._scramble_revealed = True
+                self._scramble_label.config(text=self.current_scramble)
+                self._scramble_label.pack(pady=(4, 0))
+                self._new_scramble_btn.pack(side="left", padx=6, pady=4)
+                self._visualize_btn.pack(side="left", padx=6, pady=4)
+                self._status_label.config(
+                    text=STATUS_TEXTS["scramble_revealed"], fg=FG_YELLOW,
+                )
+            else:
+                # Start inspection
+                self._scramble_label.pack_forget()
+                self._new_scramble_btn.pack_forget()
+                self._visualize_btn.pack_forget()
+                self._scramble_revealed = False
+                self.timer.start_inspection()
 
         elif phase == TimerPhase.INSPECTION:
+            # Pressing during inspection cancels
+            self._hide_scramble()
             self.timer.cancel()
 
         elif phase == TimerPhase.GRACE:
+            # Pressing during grace cancels
+            self._hide_scramble()
             self.timer.cancel()
 
         elif phase == TimerPhase.READY:
@@ -128,12 +178,35 @@ class Application:
             self.times.append({
                 "time": elapsed,
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "scramble": self.current_scramble,
             })
             save_times(self.times)
+            self.current_scramble = generate_scramble()
             self._ask_show_times(elapsed)
 
     def _on_escape(self, _event: tk.Event) -> None:
-        self.root.quit()
+        phase = self.timer.phase
+        if phase in (TimerPhase.INSPECTION, TimerPhase.GRACE):
+            self._hide_scramble()
+            self.timer.cancel()
+        elif phase == TimerPhase.SOLVING:
+            self._hide_scramble()
+            self.timer.reset()
+            self._status_label.config(text=STATUS_TEXTS["idle"], fg=FG_YELLOW)
+        else:
+            self.root.quit()
+
+    # ── Scramble helpers ────────────────────────────────────────────
+
+    def _hide_scramble(self) -> None:
+        self._scramble_label.pack_forget()
+        self._new_scramble_btn.pack_forget()
+        self._visualize_btn.pack_forget()
+        self._scramble_revealed = False
+
+    def _new_scramble(self) -> None:
+        self.current_scramble = generate_scramble()
+        self._scramble_label.config(text=self.current_scramble)
 
     # ── Update loop (called every 10 ms) ───────────────────────────
 
@@ -146,7 +219,6 @@ class Application:
         ms = self.timer.display_ms
         phase = self.timer.phase
 
-        # Timer text
         if phase == TimerPhase.INSPECTION:
             remain_s = ms // 1000
             if remain_s <= 0:
@@ -188,18 +260,29 @@ class Application:
             messagebox.showinfo("Times", "No times recorded yet!")
             return
 
-        win = tk.Toplevel(self.root)
-        win.title("3x3 Solve Times")
-        win.geometry("700x600")
-        win.configure(bg=BG)
+        if self._times_window is not None and self._times_window.winfo_exists():
+            self._times_window.lift()
+            self._times_window.focus()
+            return
+
+        self._times_window = tk.Toplevel(self.root)
+        self._times_window.title("3x3 Solve Times")
+        self._times_window.geometry("800x600")
+        self._times_window.configure(bg=BG)
+
+        def on_close() -> None:
+            self._times_window.destroy()
+            self._times_window = None
+
+        self._times_window.protocol("WM_DELETE_WINDOW", on_close)
 
         tk.Label(
-            win, text="Your Solve Times",
+            self._times_window, text="Your Solve Times",
             font=("Arial", 18, "bold"), bg=BG, fg=FG_GREEN,
         ).pack(pady=10)
 
         # Scrollable area
-        container = tk.Frame(win, bg=BG)
+        container = tk.Frame(self._times_window, bg=BG)
         container.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         canvas = tk.Canvas(container, bg=CANVAS_BG, highlightthickness=0)
@@ -223,9 +306,10 @@ class Application:
 
         self._stat_label(stats_frame, "═" * 50, FG_DARK)
         self._stat_label(stats_frame, f"Total Solves: {s['count']}", FG_WHITE)
-        self._stat_label(stats_frame, f"Best:   {format_time(s['best'])}", FG_GREEN)
-        self._stat_label(stats_frame, f"Worst:  {format_time(s['worst'])}", FG_RED)
-        self._stat_label(stats_frame, f"Average: {format_time(s['average'])}", FG_YELLOW)
+        if s["count"] > 0:
+            self._stat_label(stats_frame, f"Best:   {format_time(s['best'])}", FG_GREEN)
+            self._stat_label(stats_frame, f"Worst:  {format_time(s['worst'])}", FG_RED)
+            self._stat_label(stats_frame, f"Average: {format_time(s['average'])}", FG_YELLOW)
         self._stat_label(stats_frame, "═" * 50, FG_DARK)
 
         # ── Solve entries ──
@@ -234,8 +318,8 @@ class Application:
             bg=CANVAS_BG, fg=FG_WHITE,
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
-        best = s["best"]
-        worst = s["worst"]
+        best = s.get("best")
+        worst = s.get("worst")
 
         for idx, entry in enumerate(self.times):
             t = entry["time"]
@@ -250,9 +334,17 @@ class Application:
                 font=("Arial", 11), bg="#1a1a1a", fg=colour, anchor="w",
             ).pack(side="left", fill=tk.X, expand=True)
 
+            # Show scramble if available
+            scr = entry.get("scramble", "")
+            if scr:
+                tk.Label(
+                    row, text=scr,
+                    font=("Courier", 9), bg="#1a1a1a", fg="#888888", anchor="w",
+                ).pack(side="left", fill=tk.X, expand=True, padx=(8, 0))
+
             tk.Button(
                 row, text="✕",
-                command=lambda i=idx: self._delete_solve(i, win),
+                command=lambda i=idx: self._delete_solve(i),
                 font=("Arial", 10), bg="#ff4444", fg="white",
                 padx=5, pady=0, cursor="hand2", bd=0,
             ).pack(side="right", padx=5)
@@ -260,27 +352,37 @@ class Application:
     @staticmethod
     def _stat_label(parent: tk.Frame, text: str, colour: str) -> None:
         tk.Label(
-            parent, text=text, font=("Arial", 12, "bold") if "═" not in text else ("Arial", 10),
+            parent, text=text,
+            font=("Arial", 12, "bold") if "═" not in text else ("Arial", 10),
             bg=CANVAS_BG, fg=colour,
         ).pack(anchor="w")
 
     # ── Delete & Clear ──────────────────────────────────────────────
 
-    def _delete_solve(self, index: int, window: tk.Toplevel) -> None:
+    def _delete_solve(self, index: int) -> None:
+        if index < 0 or index >= len(self.times):
+            return
         if messagebox.askyesno(
             "Delete Solve",
             f"Delete solve: {format_time(self.times[index]['time'])}?",
         ):
             del self.times[index]
             save_times(self.times)
-            window.destroy()
+            if self._times_window and self._times_window.winfo_exists():
+                self._times_window.destroy()
+                self._times_window = None
             self._view_times()
 
     def _clear_times(self) -> None:
         if messagebox.askyesno("Clear Times", "Are you sure you want to clear all times?"):
             self.times.clear()
             save_times(self.times)
-            self.timer.cancel()
+            self.timer.reset()
+            self._hide_scramble()
+            self._status_label.config(text=STATUS_TEXTS["idle"], fg=FG_YELLOW)
+            if self._times_window and self._times_window.winfo_exists():
+                self._times_window.destroy()
+                self._times_window = None
             messagebox.showinfo("Success", "All times cleared!")
 
     # ── Dialog after solve ──────────────────────────────────────────

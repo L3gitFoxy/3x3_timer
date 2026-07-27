@@ -64,6 +64,14 @@ class SpeedCubeTimer:
         self._start_time = None
         return elapsed
 
+    def reset(self) -> None:
+        """Force the timer back to IDLE regardless of current phase."""
+        self.running = False
+        self.phase = TimerPhase.IDLE
+        self.elapsed_ms = 0
+        self._start_time = None
+        self._phase_start = 0.0
+
     def tick(self) -> None:
         """Advance state — call every ~10 ms from the UI update loop."""
 
