@@ -1,0 +1,1 @@
+"""3x3 Speed Cube Timer - A lightweight desktop timer for Rubik's Cube solves."""

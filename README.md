@@ -4,8 +4,8 @@
 
 A lightweight desktop timer for 3×3 Rubik's Cube solves, built with Python.
 
-[![Python](https://img.shields.io/badge/Python-3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://microsoft.com/windows)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://microsoft.com/windows)
 [![Stars](https://img.shields.io/github/stars/L3gitFoxy/3x3_timer?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer/stargazers)
 [![Issues](https://img.shields.io/github/issues/L3gitFoxy/3x3_timer?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer/issues)
 
@@ -25,6 +25,7 @@ Simple. Fast. Offline.
 - [Data Storage](#data-storage)
 - [Requirements](#requirements)
 - [Contributing](#contributing)
+- [Security](#security)
 - [License](#license)
 
 ---
@@ -42,24 +43,18 @@ Solve history is stored locally, making the application completely offline with 
 - High-precision solve timer
 - Local solve history
 - Persistent JSON storage
-- Lightweight single-file application
+- Lightweight multi-file application
 - No internet connection required
 - No external database
 - Easy to modify and extend
+- Cross-platform (Windows, macOS, Linux)
 
 ---
 
 ## Installation
 
-Clone the repository:
-
 ```bash
 git clone https://github.com/L3gitFoxy/3x3_timer.git
-```
-
-Enter the project directory:
-
-```bash
 cd 3x3_timer
 ```
 
@@ -68,7 +63,7 @@ cd 3x3_timer
 ## Running
 
 ```bash
-python "3x3 interactive timer.py"
+python -m src.ui
 ```
 
 ---
@@ -78,20 +73,25 @@ python "3x3 interactive timer.py"
 ```text
 3x3_timer/
 │
-├── 3x3 interactive timer.py    # Main application
-├── 3x3_times.json              # Stored solve history
-└── README.md
+├── src/
+│   ├── __init__.py          # Package marker
+│   ├── timer.py             # Pure timer logic & state machine
+│   ├── storage.py           # JSON persistence & validation
+│   └── ui.py                # Tkinter graphical interface
+├── data/
+│   └── times.json           # Solve history (gitignored)
+├── .gitignore
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── SECURITY.md
 ```
 
 ---
 
 ## Data Storage
 
-Solve times are stored locally inside
-
-```text
-3x3_times.json
-```
+Solve times are stored locally in `data/times.json`.
 
 No cloud services, analytics, or user accounts are used.
 
@@ -99,26 +99,23 @@ No cloud services, analytics, or user accounts are used.
 
 ## Requirements
 
-- Python 3.13 or newer
-- Windows (currently tested)
+- Python 3.10 or newer
+- Tkinter (included with most Python installations)
 
 ---
 
 ## Contributing
 
-Contributions are welcome.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-If you find a bug or have an improvement:
+---
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes.
-4. Open a Pull Request.
+## Security
+
+See [SECURITY.md](SECURITY.md).
 
 ---
 
 ## License
 
-This project is licensed under the MIT License.
-
-See the `LICENSE` file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
