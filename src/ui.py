@@ -209,10 +209,8 @@ class Application:
 
         if phase == TimerPhase.INSPECTION:
             remain_s = ms // 1000
-            if remain_s <= 0:
-                remain_s = 1
             self._status_label.configure(
-                text=f"LOOKING TIME: {remain_s - 1} seconds",
+                text=f"LOOKING TIME: {remain_s} seconds",
                 text_color="#00ff00",
             )
             self._timer_label.configure(text=format_time(ms), text_color="#ffaa00")

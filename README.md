@@ -100,7 +100,8 @@ python run.py
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
-└── SECURITY.md
+├── SECURITY.md
+└── 3x3.py                   # Full length code without any divisions
 ```
 
 ---
