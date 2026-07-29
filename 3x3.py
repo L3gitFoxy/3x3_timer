@@ -1,3 +1,7 @@
+# This is an all-in-one copy-pastable code file for quickly copying the whole codebase as one .py file
+# Copy all the contents from this file and run the code; all libraries are built in with Python
+# make sure you have Python 3.10+
+
 import copy
 import tkinter as tk
 from tkinter import messagebox
