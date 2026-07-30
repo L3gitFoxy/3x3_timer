@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
-from typing import Any, List, Dict
-
+from typing import Any
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DEFAULT_FILE = DATA_DIR / "times.json"
@@ -18,7 +16,7 @@ def get_data_path(filename: str = "times.json") -> Path:
     return DATA_DIR / filename
 
 
-def load_times(path: Path = DEFAULT_FILE) -> List[Dict[str, Any]]:
+def load_times(path: Path = DEFAULT_FILE) -> list[dict[str, Any]]:
     """Load solve times from *path*.
 
     Returns an empty list if the file is missing, empty, or contains corrupt data.
@@ -27,7 +25,7 @@ def load_times(path: Path = DEFAULT_FILE) -> List[Dict[str, Any]]:
         return []
 
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with path.open(encoding="utf-8") as f:
             data: Any = json.load(f)
         # Validate — we expect a list of objects with 'time' and 'date'
         if isinstance(data, list) and all(
@@ -39,8 +37,8 @@ def load_times(path: Path = DEFAULT_FILE) -> List[Dict[str, Any]]:
         return []
 
 
-def save_times(times: List[Dict[str, Any]], path: Path = DEFAULT_FILE) -> None:
+def save_times(times: list[dict[str, Any]], path: Path = DEFAULT_FILE) -> None:
     """Persist *times* to *path* as pretty-printed JSON."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    with path.open("w", encoding="utf-8") as f:
         json.dump(times, f, indent=2)
