@@ -88,24 +88,6 @@ Solve history is stored locally, making the application completely offline with 
 
 ---
 
-## Changelog
-
-### v2.3 (Current)
-- **CSV export** — Export all solves to CSV with native save dialog
-- Statistics now include Ao5, Ao12, Ao100 sliding averages
-
-### v2.2
-- **WCA-compliant scramble generation** — parallel-face sequences (U/D, R/L, F/B) are now prevented per WCA regulation 4b3
-- **Sliding averages** — Ao5, Ao12, Ao100 displayed in the stats panel
-
-### v2.1
-- **CustomTkinter migration** — modern rounded dark-theme widgets
-- **Inline scramble** — always visible, no reveal/hide logic
-- **Times graph** — canvas-based line chart in the View Times window
-- **Responsive layout** — proportional scaling on resize
-
----
-
 ## Installation & Running
 
 ### One-command install (requires Python 3.10+)
