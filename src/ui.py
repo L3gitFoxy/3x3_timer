@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import csv
 import tkinter as tk  # for Canvas (no CTkCanvas in customtkinter 5.x)
+import tkinter.messagebox as mb
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from tkinter import filedialog
+from typing import Any
 
 import customtkinter as ctk
 
 from scramble import generate_scramble
-from storage import load_times, save_times
+from storage import get_data_path, load_times, save_times
 from timer import SpeedCubeTimer, TimerPhase, format_time
 from visualizer import open_visualizer
 
@@ -30,13 +32,14 @@ class Application:
         self.root.geometry("700x580")
 
         self.timer = SpeedCubeTimer()
-        self.times: List[Dict[str, Any]] = load_times()
+        self.times: list[dict[str, Any]] = load_times()
         self.current_scramble: str = generate_scramble()
         self._times_window: ctk.CTkToplevel | None = None
 
         self._build_ui()
         self._bind_keys()
         self._update()
+        self._show_welcome_if_first_run()
 
     # ── UI construction ─────────────────────────────────────────────
 
@@ -159,10 +162,7 @@ class Application:
         if phase == TimerPhase.IDLE:
             self.timer.start_inspection()
 
-        elif phase == TimerPhase.INSPECTION:
-            self.timer.cancel()
-
-        elif phase == TimerPhase.GRACE:
+        elif phase in (TimerPhase.INSPECTION, TimerPhase.GRACE):
             self.timer.cancel()
 
         elif phase == TimerPhase.READY:
@@ -186,7 +186,9 @@ class Application:
             self.timer.cancel()
         elif phase == TimerPhase.SOLVING:
             self.timer.reset()
-            self._status_label.configure(text="Press ANY KEY to start inspection", text_color="#ffff00")
+            self._status_label.configure(
+                text="Press ANY KEY to start inspection", text_color="#ffff00"
+            )
         else:
             self.root.quit()
 
@@ -220,7 +222,9 @@ class Application:
             self._status_label.configure(text="READY TO SOLVE: 3 seconds", text_color="#0099ff")
             self._timer_label.configure(text=format_time(ms), text_color="#0099ff")
         elif phase == TimerPhase.READY:
-            self._status_label.configure(text="PRESS ANY KEY TO START SOLVING", text_color="#ff0000")
+            self._status_label.configure(
+                text="PRESS ANY KEY TO START SOLVING", text_color="#ff0000"
+            )
             self._timer_label.configure(text="00:00.00", text_color="#00ff00")
         elif phase == TimerPhase.SOLVING:
             self._status_label.configure(
@@ -229,20 +233,22 @@ class Application:
             )
             self._timer_label.configure(text=format_time(ms), text_color="#00ff00")
         else:  # IDLE
-            self._status_label.configure(text="Press ANY KEY to start inspection", text_color="#ffff00")
+            self._status_label.configure(
+                text="Press ANY KEY to start inspection", text_color="#ffff00"
+            )
             self._timer_label.configure(text="00:00.00", text_color="#00ff00")
 
     # ── Statistics ──────────────────────────────────────────────────
 
     @staticmethod
-    def _sliding_avg(times_ms: List[int], window: int) -> Optional[int]:
+    def _sliding_avg(times_ms: list[int], window: int) -> int | None:
         """Return the most recent sliding-window average, or None if not enough solves."""
         if len(times_ms) < window:
             return None
         recent = times_ms[-window:]
         return int(sum(recent) / window)
 
-    def _stats(self) -> Dict[str, Any]:
+    def _stats(self) -> dict[str, Any]:
         times_ms = [e["time"] for e in self.times]
         if not times_ms:
             return {"count": 0}
@@ -258,7 +264,7 @@ class Application:
 
     # ── Times graph (canvas-based) ──────────────────────────────────
 
-    def _draw_times_graph(self, canvas: tk.Canvas, times_ms: List[int]) -> None:
+    def _draw_times_graph(self, canvas: tk.Canvas, times_ms: list[int]) -> None:
         """Draw a line chart of solve times on the given canvas."""
         canvas.delete("all")
         n = len(times_ms)
@@ -316,7 +322,7 @@ class Application:
             )
 
         # ── Data line ──
-        points: List[float] = []
+        points: list[float] = []
         for i, t in enumerate(times_ms):
             x = margin_l + (plot_w * i / (n - 1)) if n > 1 else margin_l + plot_w // 2
             y = margin_t + plot_h - (plot_h * (t - mn) / rng)
@@ -351,9 +357,6 @@ class Application:
 
     def _view_times(self) -> None:
         if not self.times:
-            ctk.CTkMessagebox = None
-            # Use CTkInputDialog-like approach; fallback to messagebox
-            import tkinter.messagebox as mb
             mb.showinfo("Times", "No times recorded yet!", parent=self.root)
             return
 
@@ -368,7 +371,8 @@ class Application:
         self._times_window.geometry("900x650")
 
         def on_close() -> None:
-            self._times_window.destroy()
+            if self._times_window is not None:
+                self._times_window.destroy()
             self._times_window = None
 
         self._times_window.protocol("WM_DELETE_WINDOW", on_close)
@@ -408,7 +412,10 @@ class Application:
             lambda: self._draw_times_graph(graph_canvas, times_ms),
         )
         # Redraw on resize
-        graph_canvas.bind("<Configure>", lambda e: self._draw_times_graph(graph_canvas, times_ms))
+        graph_canvas.bind(
+            "<Configure>",
+            lambda _e: self._draw_times_graph(graph_canvas, times_ms),
+        )
 
         # ── Scrollable content ──
         scroll_container = ctk.CTkScrollableFrame(self._times_window, fg_color="transparent")
@@ -498,11 +505,10 @@ class Application:
     def _export_csv(self) -> None:
         """Export all solve times to a CSV file."""
         if not self.times:
-            import tkinter.messagebox as mb
-            mb.showinfo("Export", "No times to export!", parent=self._times_window)
+            parent_win: Any = self._times_window
+            mb.showinfo("Export", "No times to export!", parent=parent_win)
             return
 
-        from tkinter import filedialog
         filename = filedialog.asksaveasfilename(
             parent=self._times_window,
             title="Export Times as CSV",
@@ -513,7 +519,7 @@ class Application:
             return
 
         try:
-            with open(filename, "w", newline="", encoding="utf-8") as f:
+            with Path(filename).open("w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
                 writer.writerow(["#", "Time (ms)", "Time (formatted)", "Date", "Scramble"])
                 for idx, entry in enumerate(self.times):
@@ -524,26 +530,26 @@ class Application:
                         entry["date"],
                         entry.get("scramble", ""),
                     ])
-            import tkinter.messagebox as mb
             mb.showinfo(
                 "Export Successful",
                 f"Exported {len(self.times)} solves to:\n{filename}",
-                parent=self._times_window,
+                parent=self._times_window,  # type: ignore[arg-type]
             )
         except (OSError, PermissionError) as e:
-            import tkinter.messagebox as mb
-            mb.showerror("Export Failed", str(e), parent=self._times_window)
+            mb.showerror("Export Failed", str(e), parent=self._times_window)  # type: ignore[arg-type]
 
     # ── Delete & Clear ──────────────────────────────────────────────
 
     def _delete_solve(self, index: int) -> None:
         if index < 0 or index >= len(self.times):
             return
-        import tkinter.messagebox as mb
+        parent_win: ctk.CTkToplevel | ctk.CTk = (
+            self._times_window if self._times_window else self.root
+        )
         if mb.askyesno(
             "Delete Solve",
             f"Delete solve: {format_time(self.times[index]['time'])}?",
-            parent=self._times_window if self._times_window else self.root,
+            parent=parent_win,
         ):
             del self.times[index]
             save_times(self.times)
@@ -553,12 +559,13 @@ class Application:
             self._view_times()
 
     def _clear_times(self) -> None:
-        import tkinter.messagebox as mb
         if mb.askyesno("Clear Times", "Are you sure you want to clear all times?"):
             self.times.clear()
             save_times(self.times)
             self.timer.reset()
-            self._status_label.configure(text="Press ANY KEY to start inspection", text_color="#ffff00")
+            self._status_label.configure(
+                text="Press ANY KEY to start inspection", text_color="#ffff00"
+            )
             if self._times_window and self._times_window.winfo_exists():
                 self._times_window.destroy()
                 self._times_window = None
@@ -566,8 +573,31 @@ class Application:
 
     # ── Dialog after solve ──────────────────────────────────────────
 
+    def _show_welcome_if_first_run(self) -> None:
+        """Show a welcome dialog on first launch to explain the timer flow."""
+        welcome_flag = get_data_path(".welcome_shown")
+        if welcome_flag.exists():
+            return
+
+        mb.showinfo(
+            "Welcome to 3x3 Speed Cube Timer!",
+            "Here's how to get started:\n\n"
+            "1. Press ANY KEY to start the 15-second inspection (look at the scramble)\n"
+            "2. After inspection, you have 3 seconds of grace time\n"
+            "3. Press ANY KEY again to start solving\n"
+            "4. Press ANY KEY to stop the timer\n"
+            "5. View your times with the 'View Times' button\n\n"
+            "Keyboard shortcuts:\n"
+            "  SPACE / ENTER  — Start/Stop\n"
+            "  ESC            — Cancel / Quit\n\n"
+            "Happy cubing! 🧩",
+            parent=self.root,
+        )
+        # Mark welcome as shown
+        welcome_flag.parent.mkdir(parents=True, exist_ok=True)
+        welcome_flag.touch()
+
     def _ask_show_times(self, elapsed: int) -> None:
-        import tkinter.messagebox as mb
         if mb.askyesno(
             "Solve Complete!",
             f"Solve Time: {format_time(elapsed)}\n\nView your times?",
@@ -580,5 +610,5 @@ def main() -> None:
     root = ctk.CTk()
     root.minsize(600, 500)
     root.geometry("700x580")
-    app = Application(root)
+    Application(root)
     root.mainloop()

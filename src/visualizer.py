@@ -7,7 +7,6 @@ allowing the user to step through each move of a scramble with arrow keys.
 from __future__ import annotations
 
 import tkinter as tk
-from typing import List
 
 from scramble import FACE_COLORS, CubeState, compute_states
 
@@ -47,9 +46,9 @@ def open_visualizer(parent: tk.Tk | tk.Toplevel, scramble_str: str) -> None:
     canvas.pack()
 
     # ── Pre-compute all cube states ─────────────────────────────────
-    cube_states: List[CubeState] = compute_states(scramble_str)
+    cube_states: list[CubeState] = compute_states(scramble_str)
 
-    step_idx: List[int] = [0]
+    step_idx: list[int] = [0]
 
     # ── Drawing helpers ─────────────────────────────────────────────
     def shade(color: str, factor: float) -> str:
