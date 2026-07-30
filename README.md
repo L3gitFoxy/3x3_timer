@@ -14,8 +14,6 @@ Simple. Fast. Offline.
 
 </div>
 
----
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -28,15 +26,11 @@ Simple. Fast. Offline.
 - [Security](#security)
 - [License](#license)
 
----
-
 ## Overview
 
 **3x3 Timer** is a modern desktop timer for recording Rubik's Cube solves with a sleek CustomTkinter dark-theme UI.
 
 Solve history is stored locally, making the application completely offline with no external services or accounts required.
-
----
 
 ## Features
 
@@ -54,8 +48,6 @@ Solve history is stored locally, making the application completely offline with 
 - No internet connection required
 - No external database
 - Lightweight multi-file modular application
-
----
 
 ## Installation
 
@@ -80,8 +72,6 @@ cd 3x3_timer
 python run.py
 ```
 
----
-
 ## Project Structure
 
 ```text
@@ -104,34 +94,24 @@ python run.py
 └── 3x3.py                   # Full length code without any divisions
 ```
 
----
-
 ## Data Storage
 
 Solve times are stored locally in `data/times.json`.
 
 No cloud services, analytics, or user accounts are used.
 
----
-
 ## Requirements
 
 - Python 3.10 or newer
 - CustomTkinter >= 5.2.2 (installed automatically via pip)
 
----
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
----
-
 ## Security
 
 See [SECURITY.md](SECURITY.md).
-
----
 
 ## License
 
