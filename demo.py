@@ -8,6 +8,8 @@ Includes:
 - CustomTkinter graphical user interface.
 """
 
+# Copy and Paste this whole code to run it as one file!
+
 from __future__ import annotations
 
 import csv
