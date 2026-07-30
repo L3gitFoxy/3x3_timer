@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "3x3_timer"
-version = "2.3"
+version = "3.0"
 description = "A modern desktop timer for 3×3 Rubik's Cube solves with CustomTkinter"
 readme = "README.md"
 license = {text = "MIT"}

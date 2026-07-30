@@ -1,1 +1,1 @@
-"""3x3 Speed Cube Timer v2.3 - A modern desktop timer for Rubik's Cube solves with CustomTkinter."""
+"""3x3 Speed Cube Timer v3.0 - A modern desktop timer for Rubik's Cube solves with CustomTkinter."""
