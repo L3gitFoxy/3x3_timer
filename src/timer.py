@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import time
 from enum import Enum, auto
-from typing import Optional
 
 
 class TimerPhase(Enum):
@@ -29,7 +28,7 @@ class SpeedCubeTimer:
         self.phase: TimerPhase = TimerPhase.IDLE
         self.running: bool = False
         self.elapsed_ms: int = 0
-        self._start_time: Optional[float] = None
+        self._start_time: float | None = None
         self._phase_start: float = 0.0
 
     # ------------------------------------------------------------------

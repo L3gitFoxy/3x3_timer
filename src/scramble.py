@@ -8,15 +8,14 @@ No UI dependencies — can be used from any frontend.
 from __future__ import annotations
 
 import random
-from typing import Dict, List
 
 # ── Constants ────────────────────────────────────────────────────────
 
-MOVES: List[str] = ["U", "D", "L", "R", "F", "B"]
-MODIFIERS: List[str] = ["", "'", "2"]
+MOVES: list[str] = ["U", "D", "L", "R", "F", "B"]
+MODIFIERS: list[str] = ["", "'", "2"]
 
 # Standard Western colour scheme
-FACE_COLORS: Dict[str, str] = {
+FACE_COLORS: dict[str, str] = {
     "U": "#ffffff",  # white
     "D": "#ffff00",  # yellow
     "F": "#00aa00",  # green
@@ -25,7 +24,7 @@ FACE_COLORS: Dict[str, str] = {
     "R": "#ff0000",  # red
 }
 
-CubeState = Dict[str, List[str]]
+CubeState = dict[str, list[str]]
 """Maps face letter → list of 9 sticker colours (reading order)."""
 
 
@@ -102,12 +101,12 @@ def apply_scramble(cube: CubeState, scramble: str) -> None:
         apply_move(cube, m)
 
 
-def compute_states(scramble: str) -> List[CubeState]:
+def compute_states(scramble: str) -> list[CubeState]:
     """Return a list of cube states from solved → after each move.
 
     Useful for stepping through a scramble visually.
     """
-    states: List[CubeState] = [make_solved_cube()]
+    states: list[CubeState] = [make_solved_cube()]
     for m in scramble.split():
         nxt = {f: list(states[-1][f]) for f in "UDFBLR"}
         apply_move(nxt, m)
@@ -117,7 +116,7 @@ def compute_states(scramble: str) -> List[CubeState]:
 
 # ── Opposing face pairs (WCA regulation 4b3) ─────────────────────────
 
-OPPOSITES: Dict[str, str] = {"U": "D", "D": "U", "R": "L", "L": "R", "F": "B", "B": "F"}
+OPPOSITES: dict[str, str] = {"U": "D", "D": "U", "R": "L", "L": "R", "F": "B", "B": "F"}
 
 # ── Scramble generation ──────────────────────────────────────────────
 
@@ -128,7 +127,7 @@ def generate_scramble(length: int = 20) -> str:
     - No move on the *opposite* face after a move on its parallel face
       (WCA regulation 4b3 — e.g. R is never followed by L, U never by D).
     """
-    scramble: List[str] = []
+    scramble: list[str] = []
     last: str | None = None
     for _ in range(length):
         available = [
