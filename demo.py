@@ -13,9 +13,8 @@ import shutil
 MOVES = ["U", "D", "L", "R", "F", "B"]
 MODIFIERS = ["", "'", "2"]
 
-# Face indices: U=0, D=1, F=2, B=3, L=4, R=5
-# Each face: 9 stickers [0..8] in reading order (top-left to bottom-right)
-# Standard Western Color Scheme
+# U=top, D=bottom, F=front, B=back, L=left, R=right
+# each face has 9 stickers, indexed left-to-right top-to-bottom
 FACE_COLORS = {
     "U": "#ffffff",  # white
     "D": "#ffff00",  # yellow
@@ -49,42 +48,42 @@ def _do_move(cube, face):
     U,D,F,B,L,R = (cube[x] for x in "UDFBLR")
     
     if face == "U":
-        # CW from above: L-top -> B-top -> R-top -> F-top -> L-top
+        # top row of F/R/B/L cycles around
         tmp = [F[0],F[1],F[2]]
         F[0],F[1],F[2] = R[0],R[1],R[2]
         R[0],R[1],R[2] = B[0],B[1],B[2]
         B[0],B[1],B[2] = L[0],L[1],L[2]
         L[0],L[1],L[2] = tmp
     elif face == "D":
-        # CW from below: L-bot -> F-bot -> R-bot -> B-bot -> L-bot
+        # bottom row cycles the other way
         tmp = [F[6],F[7],F[8]]
         F[6],F[7],F[8] = L[6],L[7],L[8]
         L[6],L[7],L[8] = B[6],B[7],B[8]
         B[6],B[7],B[8] = R[6],R[7],R[8]
         R[6],R[7],R[8] = tmp
     elif face == "F":
-        # CW from front: U-bot -> R-left -> D-top -> L-right -> U-bot
+        # U bottom -> R left col -> D top -> L right col
         tmp = [U[6],U[7],U[8]]
         U[6],U[7],U[8] = L[8],L[5],L[2]
         L[2],L[5],L[8] = D[0],D[1],D[2]
         D[0],D[1],D[2] = R[6],R[3],R[0]
         R[0],R[3],R[6] = tmp
     elif face == "B":
-        # CW from back: U-top -> L-left -> D-bot -> R-right -> U-top
+        # opposite of F, note the reversal
         tmp = [U[0],U[1],U[2]]
         U[0],U[1],U[2] = R[2],R[5],R[8]
         R[2],R[5],R[8] = D[8],D[7],D[6]
         D[6],D[7],D[8] = L[0],L[3],L[6]
         L[0],L[3],L[6] = tmp[::-1]
     elif face == "L":
-        # CW from left: U-left -> F-left -> D-left -> B-right -> U-left
+        # left col of U/F/D/B cycles, B is mirrored so indices go backwards
         tmp = [U[0],U[3],U[6]]
         U[0],U[3],U[6] = B[8],B[5],B[2]
         B[2],B[5],B[8] = D[6],D[3],D[0]
         D[0],D[3],D[6] = F[0],F[3],F[6]
         F[0],F[3],F[6] = tmp
     elif face == "R":
-        # CW from right: U-right -> B-left -> D-right -> F-right -> U-right
+        # right col, same idea as L but mirrored
         tmp = [U[2],U[5],U[8]]
         U[2],U[5],U[8] = F[2],F[5],F[8]
         F[2],F[5],F[8] = D[2],D[5],D[8]
@@ -122,7 +121,7 @@ def open_visualizer(parent, scramble_str):
     def draw_cube(cube):
         canvas.delete("all")
         
-        # Sizing and center point where U, F, and R faces meet
+        # sticker size and the center anchor point
         S = 36
         S2 = 18
         CX, CY = 300, 220
@@ -130,18 +129,18 @@ def open_visualizer(parent, scramble_str):
         def add(p1, p2): return (p1[0] + p2[0], p1[1] + p2[1])
         def scale(v, f): return (v[0] * f, v[1] * f)
 
-        # Isometric basis vectors
-        vec_DL = (-S, S2)    # Down-Left
-        vec_UR = (S, -S2)    # Up-Right
-        vec_UL = (-S, -S2)   # Up-Left
-        vec_DR = (S, S2)     # Down-Right
-        vec_D  = (0, S)      # Down
+        # directions for the isometric projection
+        vec_DL = (-S, S2)    # down-left
+        vec_UR = (S, -S2)    # up-right
+        vec_UL = (-S, -S2)   # up-left
+        vec_DR = (S, S2)     # down-right
+        vec_D  = (0, S)      # straight down
 
         def draw_face(face_name, orig, vec_c, vec_r, color_darken):
             for row in range(3):
                 for col in range(3):
                     idx = row * 3 + col
-                    # Calculate 4 corners of the polygon sticker
+                    # 4 corners of this sticker
                     p0 = add(orig, add(scale(vec_c, col), scale(vec_r, row)))
                     p1 = add(p0, vec_c)
                     p2 = add(p1, vec_r)
@@ -153,19 +152,17 @@ def open_visualizer(parent, scramble_str):
 
                     canvas.create_polygon([p0, p1, p2, p3], fill=color, outline="#111", width=2)
 
-        # R face (Right side, Red)
+        # draw R, F, U — darkened a bit on the sides to fake lighting
         R_orig = (CX, CY)
         draw_face("R", R_orig, vec_UR, vec_D, 0.75)
 
-        # F face (Front side, drawn on Left, Green)
         F_orig = add((CX, CY), scale(vec_UL, 3))
         draw_face("F", F_orig, vec_DR, vec_D, 0.88)
 
-        # U face (Top side, White)
         U_orig = (CX, CY - 3 * S)
         draw_face("U", U_orig, vec_DR, vec_DL, 1.0)
 
-    # Pre-compute all states
+    # build every cube state upfront so stepping is instant
     cube_states = [make_solved_cube()]
     for m in moves:
         nxt = copy.deepcopy(cube_states[-1])
