@@ -4,7 +4,7 @@
 
 A modern desktop timer for 3×3 Rubik's Cube solves, built with Python & CustomTkinter.
 
-[![Version](https://img.shields.io/badge/Version-2.3-00ff00?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer)
+[![Version](https://img.shields.io/badge/Version-3.1-00ff00?style=for-the-badge)](https://github.com/L3gitFoxy/3x3_timer)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://microsoft.com/windows)
 [![CI](https://img.shields.io/github/actions/workflow/status/L3gitFoxy/3x3_timer/ci.yml?branch=main&style=for-the-badge&logo=github&label=CI)](https://github.com/L3gitFoxy/3x3_timer/actions)
